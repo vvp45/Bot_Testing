@@ -1,15 +1,47 @@
 'use strict';
 
-const Hapi = require('hapi');
+const Glue = require('glue');
 
-const server = new Hapi.Server({ port: 3001, host: 'localhost' });
-const server = Hapi.server({ load: { sampleInterval: 1000 } });
-//server.connection({ port: 3000, host: 'localhost' });
+const manifest = {
+    server: {},
+    connections: [
+        { host: "0.0.0.0", port: 3000, labels: ["web"] }
+    ],
+    registrations: [
+        {
+            plugin: "inert",
 
-server.start((err) => {
+        },
+        {
+            plugin: {
+                register: './plugins/bot',
+                options: {
+                    uglify: true
+                }
+            }
+        },
+        {
+            plugin: {
+                register: './plugins/client',
+                options: {
+                    uglify: true
+                }
+            }
+        }
+    ]
+};
+
+const options = {
+    relativeTo: __dirname
+};
+
+Glue.compose(manifest, options, (err, server) => {
 
     if (err) {
         throw err;
     }
-    console.log(`Server running at: ${server.info.uri}`);
+    server.start(() => {
+
+        console.log('hapi days!');
+    });
 });
